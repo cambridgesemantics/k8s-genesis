@@ -1,0 +1,63 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: kube-system
+  name: anzograph-tuner-__nodepool__
+spec:
+  selector:
+    matchLabels:
+      app: anzograph-tuner-__nodepool__
+  template:
+    metadata:
+      labels:
+        app: anzograph-tuner-__nodepool__
+    spec:
+      hostPID: true
+      volumes:
+      - name: sys
+        hostPath:
+          path: /sys
+      initContainers:
+      - name: disable-thp
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        command: ["sh", "-c"]
+        args:
+        - |-
+          echo never > /rootfs/sys/kernel/mm/transparent_hugepage/enabled
+          echo never > /rootfs/sys/kernel/mm/transparent_hugepage/defrag
+          grep -q -F [never] /sys/kernel/mm/transparent_hugepage/enabled
+          grep -q -F [never] /sys/kernel/mm/transparent_hugepage/defrag
+        volumeMounts:
+        - name: sys
+          mountPath: /rootfs/sys
+      - name: tune-sysctl
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        command: ["sh", "-c"]
+        args:
+        - |-
+          sysctl -w vm.max_map_count=2097152
+          sysctl -w vm.overcommit_ratio=50
+          sysctl -w vm.overcommit_memory=0
+      containers:
+      - name: dummy
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        command: [ "sh", "-c", "while true; do sleep 3600; done;" ]
+      tolerations: __tolerations__
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: cloud.google.com/gke-nodepool
+                operator: In
+                values:
+                - __nodepool__
+      nodeSelector:
+        cambridgesemantics.com/node-purpose: anzograph
+      serviceAccountName: node-tuner

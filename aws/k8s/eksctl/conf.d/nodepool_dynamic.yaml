@@ -1,0 +1,63 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: cluster01
+  region: us-east-1
+  tags:
+    owner: "cloud-dev"
+    description: "k8s cluster for Anzo"
+nodeGroups:
+  - name: dynamic
+    amiFamily: AmazonLinux2
+    labels:
+      cambridgesemantics.com/node-purpose: 'dynamic'
+    instanceType: m5.2xlarge
+    desiredCapacity: 0
+    availabilityZones:
+    - us-east-1b
+    minSize: 0
+    maxSize: 10
+    volumeSize: 100
+    maxPodsPerNode: 10
+    iam:
+      attachPolicyARNs:
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+      - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+      - arn:aws:iam::aws:policy/AmazonS3FullAccess
+      withAddonPolicies:
+        autoScaler: true
+        imageBuilder: true
+        efs: true
+        cloudWatch: true
+    volumeType: gp2
+    privateNetworking: true
+    securityGroups:
+      withShared: true
+      withLocal: true
+    ssh:
+      allow: true
+      publicKeyName: dynamic-keypair
+    taints:
+      'cambridgesemantics.com/dedicated': 'dynamic:NoSchedule'
+    tags:
+      'k8s.io/cluster-autoscaler/node-template/label/cambridgesemantics.com/node-purpose': 'dynamic'
+      'k8s.io/cluster-autoscaler/node-template/taint/cambridgesemantics.com/dedicated': 'dynamic:NoSchedule'
+      'cambridgesemantics.com/node-purpose': 'dynamic'
+      'owner': 'sysadmin'
+      'deleteafter': '-1'
+      'schedule': 'keep-alive'
+      'description': 'ASG for Elasticsearch'
+    # If addition capacity for Amazon EBS I/O is needed, set following parameter to true
+    #ebsOptimized: true
+    # If you know number of instances required for AnzoGraph instances beforehand, use placement group parameter below
+    # This needs pre-existing placement group.
+    #placement:
+      #groupName: anzograph-placement-group
+    # Use below parameter to send group metrics by autoscaling group to CloudWatch
+    asgMetricsCollection:
+     - granularity: 1Minute
+       metrics:
+       - GroupPendingInstances
+       - GroupInServiceInstances
+       - GroupTerminatingInstances
+       - GroupInServiceCapacity

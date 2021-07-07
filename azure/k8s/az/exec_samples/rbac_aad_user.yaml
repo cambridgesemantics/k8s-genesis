@@ -1,0 +1,25 @@
+## This is a dummy file and can be used to add cluster role binding for a cluster role to given users,
+## The binding is added to users mentioned with user principal name or user object id.
+## The binding is added on given role.
+## This way users can be given permissions to cluster.
+## If not needed file can be deleted or used with dynamic values.
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cluster-admins-users
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: userPrincipalName1_or_objectId1
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: userPrincipalName2_or_objectId2
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: userPrincipalName3_or_objectId3

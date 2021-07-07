@@ -1,0 +1,54 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: cluster01
+  region: us-east-1
+  tags:
+    owner: "cloud-dev"
+    description: "k8s cluster for Anzo"
+nodeGroups:
+  - name: cluster-services
+    amiFamily: AmazonLinux2
+    labels:
+      cambridgesemantics.com/node-purpose: 'common'
+      deploy-ca: 'true'
+      cambridgesemantics.com/description: 'k8snode'
+      cluster-autoscaler-version: '1.17.4'
+    instanceType: m5.large
+    desiredCapacity: 1
+    availabilityZones:
+    - us-east-1a
+    minSize: 1
+    maxSize: 4
+    volumeSize: 50
+    maxPodsPerNode: 16
+    iam:
+      attachPolicyARNs:
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+      - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+      - arn:aws:iam::aws:policy/AmazonS3FullAccess
+      withAddonPolicies:
+        autoScaler: true
+        imageBuilder: true
+        efs: true
+        cloudWatch: true
+    volumeType: gp2
+    privateNetworking: true
+    securityGroups:
+      withShared: true
+      withLocal: true
+    ssh:
+      allow: true
+      publicKeyName: azg-keypair
+    tags:
+      'k8s.io/cluster-autoscaler/node-template/label/cambridgesemantics.com/node-purpose': 'common'
+      'schedule': 'keep-alive'
+      'owner': 'user1'
+      'deleteafter': 'no'
+    asgMetricsCollection:
+     - granularity: 1Minute
+       metrics:
+       - GroupPendingInstances
+       - GroupInServiceInstances
+       - GroupTerminatingInstances
+       - GroupInServiceCapacity

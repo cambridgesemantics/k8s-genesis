@@ -1,0 +1,167 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  # This is the name of the cluster for which nodegroup is being created.
+  # Make sure to keep it identical to CLUSTER_NAME specified while creating EKS cluster.
+  name: testcluster
+  # Region where cluster is deployed
+  region: us-east-1
+  # Used to tag AWS resources created by eksctl
+  # tags:
+nodeGroups:
+    # Name of nodegroup
+  - name: config1
+    # Labels to attach to nodegroup nodes.
+    # To identify nodegroup where you want to deploy cluster autoscaler(CA), please add label 'deploy-ca': 'true'
+    labels: {'cambridgesemantics.com/node-purpose': 'test-config', 'deploy-ca': 'true'}
+    instanceType: t3.micro
+    amiFamily: AmazonLinux2
+    # ID of eks-optimized AMIs in region, matching to the cluster version.
+    # Refer: https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html
+    # Recommended to use amiFamily parameter to align with cluster k8s version
+    # ami: ami-0c8a11610abe0a666
+    desiredCapacity: 1
+    # List of AZs where Autoscaling group is deployed,
+    # only one of subnets or availabilityZones should be set
+    availabilityZones:
+    - us-east-1a
+    instancePrefix: 'testprefix'
+    instanceName: 'test'
+    # Limit nodes to specific subnets
+    subnets:
+    - subnet-12345
+    - subnet-43555
+    minSize: 1
+    maxSize: 1
+    volumeSize: 50
+    maxPodsPerNode: 10
+    # IAM Addon policies for nodegroup
+    iam:
+      # Attach policies by ARNs, make sure to add default node policies as well
+      attachPolicyARNs:
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+      - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+      - arn:aws:iam::aws:policy/AmazonS3FullAccess
+      # Set below parameters to use existing IAM instance role and profile
+      instanceProfileARN: "arn:aws:iam::123:instance-profile/eksctl-test-cluster-a-3-nodegroup-ng2-private-NodeInstanceProfile-Y4YKHLNINMXC"
+      instanceRoleARN: "arn:aws:iam::123:role/eksctl-test-cluster-a-3-nodegroup-NodeInstanceRole-DNGMQTQHQHBJ"
+      # Name for nodegroup instance role
+      instanceRoleName: test-nodegroup-role
+      # ARN for instance role permissions boundary
+      instanceRolePermissionsBoundary: "arn:aws:iam::11111:policy/entity/boundary"
+      withAddonPolicies:
+        # Enable IAM policy for cluster-autoscaler
+        autoScaler: true
+        # Enable full access to ECR
+        imageBuilder: true
+        # Adds the external-dns project policies for Amazon Route 53
+        externalDNS: false
+        # Enables the ability to add records to Route 53 in order to solve the DNS01 challenge.
+        certManager: false
+        # Enables full access to AppMesh
+        appMesh: false
+        # Enables full access to AppMesh Preview
+        appMeshPreview: false
+        # Enables the new EBS CSI (Elastic Block Store Container Storage Interface) driver
+        ebs: false
+        # Enables access for fully managed third-party file system
+        fsx: true
+        # Enables access for EFS
+        efs: true
+        # Enables access for application load balancer ingress controller
+        albIngress: true
+        # Enables AWS X-Ray service access
+        xRay: true
+        # Enables CloudWatch service access
+        cloudWatch: true
+
+    volumeType: gp2
+    # Name of OS volume
+    volumeName: /dev/xvda
+    # Whether volume is encrypted
+    volumeEncrypted: false
+    # If volume is encrypted, use following parameter to decrypt it using KMS key id
+    volumeKmsKeyID: ""
+    # Requested number of I/O operations that volume can support per second, in integer,
+    # supported for io1 and gp3 volume types
+    # volumeIOPS: 100
+    # Throughput for volume
+    # volumeThroughput: 125
+    # Restricts nodegroup deployment in private subnets
+    privateNetworking: true
+    securityGroups:
+      # A shared SG is created to allow traffic between all nodegroups
+      withShared: true
+      # Individual nodegroup will have its own SG with this setting
+      withLocal: true
+    # Whether to allow ssh for nodegroup instances
+    # There are 3 use cases for using ssh.
+    # 1. Only allow: true setting is specified --> this will import default public key (~/.ssh/id_rsa.pub)
+    # 2. allow: true
+    #    publicKeyName: ec2_dev_key --> You can use existing EC2 Keypair
+    # 3. allow: true
+    #    publicKey: "ssh-rsa <public-key-content> someuser@hostname" --> You can use inline public key
+    # 4. sourceSecurityGroupIds: ["sg-00241fbb12c607007"] --> new feature for restricting SSH access to certain AWS security group IDs
+    ssh:
+      allow: true
+    # Taints for nodes in the nodegroup
+    # Format: key: val:NoSchedule
+    taints:
+      'test': 'val:NoSchedule'
+    # Specify tags in the form of key value pair
+    # NOTE: If nodegroup needs scale up and scale down from/to zero, you must specify below tags.
+    # 'k8s.io/cluster-autoscaler/node-template/label/<label-name>': 'label-value'
+    # If nodes have taints, specify
+    # 'k8s.io/cluster-autoscaler/node-template/taint/dedicated': 'bar:NoSchedule'
+    tags:
+      'k8s.io/cluster-autoscaler/node-template/label/key1': 'val1'
+    # Refer
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-updatepolicy.html#cfn-attributes-updatepolicy-rollingupdate-suspendprocesses
+    asgSuspendedProcesses:
+    - ReplaceUnhealthy
+    - Terminate
+    # Enabled EBS optimization
+    ebsOptimized: true
+    # Commands to be executed before bootstrapping instances to the cluster
+    # preBootstrapCommands:
+    # - yum install -y apache
+    # - yum install ncat
+    # Override eksctl's bootstrapping script, we recommend not to use this unless absolutely needed
+    # overrideBootstrapCommand: ""
+    # Requires requests to the metadata service to use IMDSv2 tokens
+    # disableIMDSv1: false
+    # Blocks all IMDS requests from non host networking pods
+    # disablePodIMDS: false
+    # Specifies the placement group in which nodes should be spawned
+    # placement:
+    #   groupName: testnodegroup
+    # Creates the maximum allowed number of EFA-enabled network cards on nodes in this group.
+    # efaEnabled: false
+    # Used by the scaling config, see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-as-metricscollection.html
+    # asgMetricsCollection:
+    # - granularity: 1Minute
+    #   metrics:
+    #   - GroupDesiredCapacity
+    #   - GroupPendingInstances
+    # Associate target groups with current autoscaling group
+    # targetGroupARNs:
+    # - arn:aws:elasticloadbalancing:us-east-1:123:targetgroup/my-targets/73e2d6bc24d8a067
+    # Extra kubelet config, refer https://eksctl.io/usage/customizing-the-kubelet/
+    # kubeletExtraConfig:
+    #   kubeReserved:
+    #     cpu: "300m"
+    #     memory: "300Mi"
+    #     ephemeral-storage: "1Gi"
+    #   kubeReservedCgroup: "/kube-reserved"
+    #   systemReserved:
+    #     cpu: "300m"
+    #     memory: "300Mi"
+    #     ephemeral-storage: "1Gi"
+    #   evictionHard:
+    #     memory.available:  "200Mi"
+    #     nodefs.available: "10%"
+    #   featureGates:
+    #     TaintBasedEvictions: true
+    #     RotateKubeletServerCertificate: true # has to be enabled, otherwise it will be disabled
+    # IP address of DNS server to use for internal and external lookups
+    # clusterDNS: 169.254.20.10

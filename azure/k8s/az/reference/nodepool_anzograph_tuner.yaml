@@ -1,0 +1,119 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-tuner
+  namespace: kube-system
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: node-tuner
+  namespace: kube-system
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+  - tune-privileged
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: node-tuner
+  namespace: kube-system
+subjects:
+- kind: ServiceAccount
+  name: node-tuner
+roleRef:
+  kind: Role
+  name: node-tuner
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: tune-privileged
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+spec:
+  privileged: true
+  allowPrivilegeEscalation: true
+  allowedCapabilities:
+  - '*'
+  volumes:
+  - '*'
+  hostNetwork: true
+  hostPorts:
+  - min: 0
+    max: 65535
+  hostIPC: true
+  hostPID: true
+  runAsUser:
+    rule: 'RunAsAny'
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: kube-system
+  name: anzograph-tuner-NODEPOOL_NAME
+spec:
+  selector:
+    matchLabels:
+      app: anzograph-tuner-NODEPOOL_NAME
+  template:
+    metadata:
+      labels:
+        app: anzograph-tuner-NODEPOOL_NAME
+    spec:
+      hostPID: true
+      volumes:
+      - name: sys
+        hostPath:
+          path: /sys
+      initContainers:
+      - name: disable-thp
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        command: ["sh", "-c"]
+        args:
+        - |-
+          echo never > /rootfs/sys/kernel/mm/transparent_hugepage/enabled
+          echo never > /rootfs/sys/kernel/mm/transparent_hugepage/defrag
+          grep -q -F [never] /sys/kernel/mm/transparent_hugepage/enabled
+          grep -q -F [never] /sys/kernel/mm/transparent_hugepage/defrag
+        volumeMounts:
+        - name: sys
+          mountPath: /rootfs/sys
+      - name: tune-sysctl
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        command: ["sh", "-c"]
+        args:
+        - |-
+          sysctl -w vm.max_map_count=2097152
+          sysctl -w vm.overcommit_ratio=50
+          sysctl -w vm.overcommit_memory=0
+      containers:
+      - name: dummy
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        command: [ "sh", "-c", "while true; do sleep 3600; done;" ]
+      tolerations: __tolerations__
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: agentpool
+                operator: In
+                values:
+                - NODEPOOL_NAME
+      serviceAccountName: node-tuner

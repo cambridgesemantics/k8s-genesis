@@ -1,0 +1,19 @@
+spec:
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+    spec:
+      containers:
+      - command:
+        - ./cluster-autoscaler
+        - --v=4
+        - --stderrthreshold=info
+        - --cloud-provider=aws
+        - --skip-nodes-with-local-storage=false
+        - --expander=least-waste
+        - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/<YOUR CLUSTER NAME>
+        - --balance-similar-node-groups
+        - --skip-nodes-with-system-pods=false
+        image: k8s.gcr.io/autoscaling/cluster-autoscaler:v<YOUR CLUSTER AUTOSCALER VERSION>
+        name: cluster-autoscaler

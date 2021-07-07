@@ -1,0 +1,43 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: cluster01
+  region: us-east-1
+nodeGroups:
+  - name: operator
+    ami: ami-0c8a11610abe0a666
+    labels:
+      cambridgesemantics.com/node-purpose: 'operator'
+    instanceType: m5.large
+    desiredCapacity: 0
+    availabilityZones:
+    - us-east-1a
+    minSize: 0
+    maxSize: 5
+    volumeSize: 50
+    maxPodsPerNode: 10
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        imageBuilder: true
+    volumeType: gp2
+    privateNetworking: true
+    securityGroups:
+      withShared: true
+      withLocal: true
+    ssh:
+      allow: true
+      publicKeyName: operator-keypair
+    taints:
+      'cambridgesemantics.com/dedicated': 'operator:NoSchedule'
+    tags:
+      'k8s.io/cluster-autoscaler/node-template/label/cambridgesemantics.com/node-purpose': 'operator'
+      'k8s.io/cluster-autoscaler/node-template/taint/cambridgesemantics.com/dedicated': 'operator:NoSchedule'
+      'cambridgesemantics.com/node-purpose': 'operator'
+    asgMetricsCollection:
+     - granularity: 1Minute
+       metrics:
+       - GroupPendingInstances
+       - GroupInServiceInstances
+       - GroupTerminatingInstances
+       - GroupInServiceCapacity

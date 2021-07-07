@@ -1,0 +1,14 @@
+{
+  "Name": "AKS Cluster Developer",
+  "IsCustom": true,
+  "Description": "AKS cluster developer role.",
+  "Actions": [
+    "Microsoft.ContainerService/managedClusters/listClusterUserCredential/action"
+  ],
+  "NotActions": [
+
+  ],
+  "AssignableScopes": [
+     "/subscriptions/<subscription_id>"
+  ]
+}
