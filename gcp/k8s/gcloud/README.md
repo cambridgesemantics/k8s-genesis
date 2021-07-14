@@ -210,8 +210,6 @@ Sample use cases for GCP GKE deployment are present under directory sample_use_c
 | `4_providePublicEndpointAccess` | This use case explains how to deploy the private cluster with public endpoint access enabled (GKE_ENABLE_PRIVATE_ENDPOINT=false). Below parameters are expected from the user. GKE_ENABLE_PRIVATE_ENDPOINT=false, GKE_PRIVATE_ACCESS=true, GKE_MASTER_ACCESS_CIDRS="" |
 
 ## References:
-```https://docs.cambridgesemantics.com/```
-
-```https://docs.google.com/document/d/1ydLaQ3N_dub4B1Y6eLtT-WjaulMzWlOwYY58Qd9_wPU/edit?usp=sharing```
+```https://docs.cambridgesemantics.com/anzo/userdoc/k8s-deployments.htm```
 
 ```https://docs.cambridgesemantics.com/anzo/userdoc/google-gke.htm```

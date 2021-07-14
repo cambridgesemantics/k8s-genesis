@@ -239,8 +239,6 @@ Sample use cases for Azure AKS deployment are present under directory sample_use
 | `11_useProximityPlacementGroups` | This use case explains using proximity placement groups for reduced latency.Proximity placement group is a logical grouping used to make sure Azure compute resources are physically located close to each other. This helps low latency applications. Below parameters are expected from the user. PPG=${PPG:-"csippg"}, PPG_TYPE=${PPG_TYPE:-"standard"} |
 
 ## References:
-```https://docs.cambridgesemantics.com/```
-
-```https://docs.google.com/document/d/1ydLaQ3N_dub4B1Y6eLtT-WjaulMzWlOwYY58Qd9_wPU/edit?usp=sharing```
+```https://docs.cambridgesemantics.com/anzo/userdoc/k8s-deployments.htm```
 
 ```https://docs.cambridgesemantics.com/anzo/userdoc/azure-aks.htm```
