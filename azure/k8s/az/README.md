@@ -243,4 +243,4 @@ Sample use cases for Azure AKS deployment are present under directory sample_use
 
 ```https://docs.google.com/document/d/1ydLaQ3N_dub4B1Y6eLtT-WjaulMzWlOwYY58Qd9_wPU/edit?usp=sharing```
 
-```https://docs.cambridgesemantics.com/anzo/v5.1/userdoc/azure-aks.htm```
+```https://docs.cambridgesemantics.com/anzo/userdoc/azure-aks.htm```

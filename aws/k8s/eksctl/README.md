@@ -10,7 +10,7 @@ This file provides steps to deploy AWS EKS cluster and its node pools, i.e. kube
 sudo yum install epel-release
 sudo yum install python-pip
 ```
-* awscli, version >= 1.16.156
+* awscli, version >= 2.1.30
 ```sh
 pip install awscli --upgrade --user
 ```
@@ -132,17 +132,17 @@ These parameters are supplied by files located in ```conf.d/``` directory. e.g. 
 | `PUBLIC_ACCESS_CIDRS` | CIDRs which are allowed to access K8s API server over public endpoint access | |
 | `ALLOW_NETWORK_CIDRS` | Comma separated list of CIDRs to allow access to k8s API server over port 443 |  |
 | `CLUSTER_NAME` | Name for EKS cluster | |
-| `CLUSTER_VERSION` | Version of EKS cluster | "1.13" |
+| `CLUSTER_VERSION` | Version of EKS cluster | "1.19" |
 | `ENABLE_PRIVATE_ACCESS` | Enable private(VPC-only) access for EKS cluster endpoint | true |
 | `ENABLE_PUBLIC_ACCESS` | Enable public access for EKS cluster endpoint | false |
-| `CNI_VERSION` | Version of CNI plugin for cluster | 1.5 |
+| `CNI_VERSION` | Version of CNI plugin for cluster | 1.7.5 |
 | `ENABLE_LOGGING_TYPES` | Comma separated list of logging types to be enabled for cluster | "api,audit" |
 | `DISABLE_LOGGING_TYPES` | Comma separated list of logging types to be disabled for cluster | "controller" |
 | `WAIT_DURATION` | Wait timeout in seconds for AWS resources creation | 1200 |
 | `WAIT_INTERVAL` | Sleep time in seconds for polling resource state information | 10 |
 | `STACK_CREATION_TIMEOUT` | Time to wait for EKS cluster in certain state(e.g. Updated) | 30m |
-| `EKSCTL_VERSION` | Expected version of eksctl on workstation | "0.3.0" |
-| `AWS_CLI_VERSION` | Expected version of aws-cli on workstation | "1.16.156" |
+| `EKSCTL_VERSION` | Expected version of eksctl on workstation | "0.40.0" |
+| `AWS_CLI_VERSION` | Expected version of aws-cli on workstation | "2.1.30" |
 
 ### Parameters for nodepool_*.yaml
 Each nodepool_*.yaml file describes properties to deploy nodepool, i.e. autoscaling group of EKS cluster nodes/EC2 instances.
@@ -196,4 +196,4 @@ Sample use cases for AWS EKS deployment are present under directory sample_use_c
 
 ```https://docs.google.com/document/d/1ydLaQ3N_dub4B1Y6eLtT-WjaulMzWlOwYY58Qd9_wPU/edit?usp=sharing```
 
-```https://docs.cambridgesemantics.com/anzo/v5.1/userdoc/amazon-eks.htm```
+```https://docs.cambridgesemantics.com/anzo/userdoc/amazon-eks.htm```

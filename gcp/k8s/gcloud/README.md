@@ -214,4 +214,4 @@ Sample use cases for GCP GKE deployment are present under directory sample_use_c
 
 ```https://docs.google.com/document/d/1ydLaQ3N_dub4B1Y6eLtT-WjaulMzWlOwYY58Qd9_wPU/edit?usp=sharing```
 
-```https://docs.cambridgesemantics.com/anzo/v5.1/userdoc/google-gke.htm```
+```https://docs.cambridgesemantics.com/anzo/userdoc/google-gke.htm```
